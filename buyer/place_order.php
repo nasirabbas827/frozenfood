@@ -10,10 +10,11 @@ require './PHPMailer/src/PHPMailer.php';
 require './PHPMailer/src/SMTP.php';
 
 // Check if user is logged in as a buyer
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "buyer") {
-    header("location: login.php");
+if (!isset($_SESSION["id"])) {
+    header("location: ../login.php");
     exit;
 }
+
 // Fetch user details from the database
 $user_id = $_SESSION["id"];
 $query = "SELECT email FROM users WHERE id = $user_id";
@@ -27,21 +28,26 @@ if (!$row) {
 }
 
 $user_email = $row['email'];
-// Check if total price and delivery address are provided
-if (!isset($_POST['total_price']) || !isset($_POST['delivery_address'])) {
+
+// Check if total price, delivery address, and payment method are provided
+if (!isset($_POST['total_price']) || !isset($_POST['delivery_address']) || !isset($_POST['payment_method'])) {
     header("location: checkout.php");
     exit;
 }
 
 $total_price = $_POST['total_price'];
 $delivery_address = $_POST['delivery_address'];
+$payment_method = $_POST['payment_method'];
 
 // Get user ID
 $user_id = $_SESSION['id'];
 
-// Insert order into database
-$sql_insert_order = "INSERT INTO orders (UserID, TotalPrice, DeliveryAddress, OrderStatus) 
-                     VALUES ('$user_id', '$total_price', '$delivery_address', 'Pending')";
+// Set PaymentStatus to 'unpaid' by default
+$payment_status = 'unpaid'; // You can change this to 'paid' when the payment is confirmed
+
+// Insert order into database with PaymentStatus and Timestamp
+$sql_insert_order = "INSERT INTO orders (UserID, TotalPrice, DeliveryAddress, PaymentMethod, PaymentStatus, OrderStatus) 
+                     VALUES ('$user_id', '$total_price', '$delivery_address', '$payment_method', '$payment_status', 'Pending')";
 
 if (mysqli_query($conn, $sql_insert_order)) {
     // Get the ID of the last inserted order
@@ -56,7 +62,7 @@ if (mysqli_query($conn, $sql_insert_order)) {
         $sql_update_quantity = "UPDATE products SET StockQuantity = StockQuantity - $quantity WHERE ProductID = $product_id";
         mysqli_query($conn, $sql_update_quantity);
         
-        // Insert order item into order_items table
+        // Insert order item into order_items table with Timestamp
         $sql_insert_order_item = "INSERT INTO order_items (OrderID, ProductID, Quantity) 
                                  VALUES ('$order_id', '$product_id', '$quantity')";
         mysqli_query($conn, $sql_insert_order_item);
@@ -65,10 +71,9 @@ if (mysqli_query($conn, $sql_insert_order)) {
     // Clear the cart after placing the order
     unset($_SESSION['cart']);
 
-      // Create a new instance of PHPMailer
-      $mail = new PHPMailer(true);
+    // Create a new instance of PHPMailer
+    $mail = new PHPMailer(true);
     // Configure SMTP settings
-    // SMTP configuration
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com'; // Replace with your SMTP host
     $mail->SMTPAuth = true;
@@ -77,7 +82,7 @@ if (mysqli_query($conn, $sql_insert_order)) {
     $mail->Port = 587; // Replace with your SMTP port (usually 587)
 
     // Send the email
-    $mail->setFrom('nasiryt.827@gmail.com', 'Thread & Trend');
+    $mail->setFrom('nasiryt.827@gmail.com', 'Frozen Food Panda');
     $mail->addAddress($user_email);
 
     // Set email subject and body

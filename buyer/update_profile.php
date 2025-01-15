@@ -1,7 +1,7 @@
 <?php
-// Start session and check if user is logged in as seller
+// Start session and check if user is logged in
 session_start();
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "buyer") {
+if (!isset($_SESSION["id"])) {
     header("location: ../login.php");
     exit;
 }
@@ -12,82 +12,166 @@ include 'config.php';
 $user_id = $_SESSION["id"];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Process the form submission and update the profile
+    // Process the form submission and update the profile
 
-  // Get the updated values from the form
-  $username = $_POST["username"];
-  $email = $_POST["email"];
-  $phone = $_POST["phone"];
-  $password = password_hash($_POST["password"], PASSWORD_DEFAULT); // Hash the password
+    // Get the updated values from the form
+    $username = trim($_POST["username"]);
+    $email = trim($_POST["email"]);
+    $phone = trim($_POST["phone"]);
+    $password = !empty($_POST["password"]) ? trim($_POST["password"]) : null;
 
-  // Update the user's profile in the database
-  $query = "UPDATE users SET username='$username', email='$email', phone='$phone', password='$password' WHERE id='$user_id'";
-  $result = mysqli_query($conn, $query);
+    // Password validation: minimum length 8 characters, must contain at least one special character
+    $password_err = '';
+    if ($password) {
+        if (strlen($password) < 8) {
+            $password_err = "Password must be at least 8 characters long.";
+        } elseif (!preg_match("/[A-Za-z]/", $password) || !preg_match("/\d/", $password) || !preg_match("/[\W_]/", $password)) {
+            $password_err = "Password must include at least one letter, one number, and one special character.";
+        } else {
+            // If password is valid, hash it
+            $password = password_hash($password, PASSWORD_DEFAULT);
+        }
+    }
 
-  if ($result) {
-    // Profile update successful
-    // You can redirect to a success page or display a success message here
-    echo "<div class='alert alert-success'>Profile updated successfully!</div>";
-  } else {
-    // Profile update failed
-    // You can redirect to an error page or display an error message here
-    echo "Error updating profile.";
-  }
+    if (empty($password_err)) {
+        // Prepare the SQL query
+        $query = "UPDATE users SET username=?, email=?, phone=?";
+        $params = [$username, $email, $phone];
+        $types = "sss";
+
+        // If password is provided, include it in the update query
+        if ($password) {
+            $query .= ", password=?";
+            $params[] = $password;
+            $types .= "s";
+        }
+        $query .= " WHERE id=?";
+        $params[] = $user_id;
+        $types .= "i";
+
+        // Prepare and execute the statement
+        if ($stmt = mysqli_prepare($conn, $query)) {
+            mysqli_stmt_bind_param($stmt, $types, ...$params);
+            if (mysqli_stmt_execute($stmt)) {
+                $success_msg = "Profile updated successfully!";
+            } else {
+                $error_msg = "Error updating profile. Please try again.";
+            }
+            mysqli_stmt_close($stmt);
+        } else {
+            $error_msg = "Failed to prepare the statement.";
+        }
+    }
 }
 
-// Fetch the user's current profile data from the database
-$query = "SELECT * FROM users WHERE id = $user_id";
-$result = mysqli_query($conn, $query);
-$row = mysqli_fetch_assoc($result);
+// Fetch the user's current profile data
+$query = "SELECT * FROM users WHERE id = ?";
+if ($stmt = mysqli_prepare($conn, $query)) {
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+}
 ?>
 
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>User Profile</title>
-  <!-- Add Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<link rel="stylesheet" href="./css/style.css">
+    <title>Update Profile</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 60px auto;
+            background: #ffffff;
+            padding: 30px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
 </head>
+
 <body>
+    <?php include('buyer_navbar.php'); ?>
 
-<?php 
-include('buyer_navbar.php');
+    <div class="container">
+        <div class="form-container">
+            <h2>Update Profile</h2>
 
-?>
+            <!-- Success/Error Messages -->
+            <?php if (isset($success_msg)): ?>
+                <div class="alert alert-success"><?php echo $success_msg; ?></div>
+            <?php endif; ?>
+            <?php if (isset($error_msg)): ?>
+                <div class="alert alert-danger"><?php echo $error_msg; ?></div>
+            <?php endif; ?>
+            <?php if (isset($password_err)): ?>
+                <div class="alert alert-danger"><?php echo $password_err; ?></div>
+            <?php endif; ?>
 
-<!-- Main Content -->
-<div class="container my-4">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <!-- Profile Update Form -->
-      <h2>Update Profile</h2>
-      <form action="" method="POST">
-        <div class="form-group">
-          <label for="username">Username:</label>
-          <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($row['username']); ?>" required>
+            <!-- Profile Update Form -->
+            <form action="" method="POST">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($row['username']); ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($row['email']); ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($row['phone']); ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">New Password (leave blank to keep current password):</label>
+                    <input type="password" class="form-control" id="password" name="password">
+                    <small class="form-text text-muted">Password must be at least 8 characters long, including letters, numbers, and special characters.</small>
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($row['email']); ?>" required>
-        </div>
-        <div class="form-group">
-          <label for="phone">Phone:</label>
-          <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($row['phone']); ?>" required>
-        </div>
-        <div class="form-group">
-          <label for="password">New Password:</label>
-          <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Update Profile</button>
-      </form>
     </div>
-  </div>
-</div>
 
-<!-- Add Bootstrap JS (optional) -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNS" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>

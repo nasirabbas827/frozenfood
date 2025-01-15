@@ -7,7 +7,7 @@ $sql_categories = "SELECT id, name FROM categories";
 $result_categories = mysqli_query($conn, $sql_categories);
 
 // Retrieve all products with seller information and category name
-$sql_products = "SELECT p.*, c.name AS category_name FROM products p  
+$sql_products = "SELECT p.*, c.name AS category_name FROM products p 
                 JOIN categories c ON p.CategoryID = c.id";
 
 // Initialize search variables
@@ -22,7 +22,7 @@ $where_conditions = array();
 if (isset($_GET['search'])) {
     $search_query = $_GET['search'];
     if (!empty($search_query)) {
-        $where_conditions[] = "(p.ProductName LIKE '%$search_query%' )";
+        $where_conditions[] = "(p.ProductName LIKE '%$search_query%')";
     }
 }
 
@@ -38,7 +38,6 @@ if (isset($_GET['product_name'])) {
     }
 }
 
-
 if (isset($_GET['min_price'], $_GET['max_price'])) {
     $min_price = $_GET['min_price'];
     $max_price = $_GET['max_price'];
@@ -53,246 +52,428 @@ if (!empty($where_conditions)) {
 }
 
 $result_products = mysqli_query($conn, $sql_products);
+
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Online Thread & Trend Clothing Brand</title>
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <link rel="stylesheet" href="./css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Frozen Food Panda - Premium Frozen Food Delivery</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="./css/style.css">
     <style>
-.jumbotron {
-            height: 550px;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('./images/hotel.jpg');
+        /* Enhanced Styles */
+        .hero-section {
+            height: 80vh;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('./images/hotel.jpg');
             background-size: cover;
+            background-position: center;
             color: white;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            text-align: center;
         }
 
-        .jumbotron h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
         }
 
-        .jumbotron p {
-            font-size: 1.5rem;
+        .feature-box {
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
+
+        .feature-box:hover {
+            transform: translateY(-10px);
+        }
+
+        .newsletter-section {
+            background: #f8f9fa;
+            padding: 4rem 0;
+        }
+        .card {
+            transition: transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .carousel-item img {
+            object-fit: cover;
+            height: 300px;
+        }
+        .search-section {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        .search-section h2 {
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+        .search-form .form-control, .search-form .form-select {
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+        }
+        .search-form .btn-primary {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: bold;
+            background-color: #2c3e50;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .search-form .btn-primary:hover {
+            background-color: #34495e;
+            transform: translateY(-2px);
+        }
+
 
     </style>
 </head>
 <body>
 
-<?php
-include('navbar.php');
-?>
+<?php include('navbar.php'); ?>
 
-<div class="jumbotron text-center">
-    <h1>Welcome to our Thread & Trend Clothing Brand</h1>
-    <p>Find the best deals and explore a wide range of products from various sellers</p>
-    <a href="login.php" class="btn btn-primary btn-lg">Login to Start Shopping</a>
-</div>
+<!-- Enhanced Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Premium Frozen Food Delivered to Your Door</h1>
+            <p class="lead mb-4">Experience restaurant-quality frozen meals with our curated selection of premium products</p>
+            <div class="hero-buttons">
+                <a href="login.php" class="btn btn-primary btn-lg mr-3">Start Shopping</a>
+                <a href="#featured" class="btn btn-outline-light btn-lg">Explore Menu</a>
+            </div>
+        </div>
+    </div>
+</section>
 
-<!-- New Arrival Section -->
-<div class="container mt-5">
-    <h2 class="mb-4">New Arrivals</h2>
-    <div id="new-arrivals-carousel" class="carousel slide" data-ride="carousel">
-        <div class="carousel-inner">
-            <?php
-            // Retrieve latest added products
-            $sql_new_arrivals = "SELECT * FROM products ORDER BY Timestamp DESC LIMIT 5";
-            $result_new_arrivals = mysqli_query($conn, $sql_new_arrivals);
-            $products_count = mysqli_num_rows($result_new_arrivals);
-            $active = true; // Set the first item as active
+<div class="container mt-5 mb-5">
 
-            // Display products in carousel format
-            for ($i = 0; $i < $products_count; $i += 2) {
-                ?>
-                <div class="carousel-item <?php echo $active ? 'active' : ''; ?>">
-                    <div class="row">
-                        <?php
-                        for ($j = $i; $j < min($i + 3, $products_count); $j++) {
-                            mysqli_data_seek($result_new_arrivals, $j);
-                            $row_new_arrival = mysqli_fetch_assoc($result_new_arrivals);
-                            ?>
-                            <div class="col-md-4">
-                                <div class="card" style="height: 100%;">
-                                    <img class="card-img-top" src="admin/products_images/<?php echo $row_new_arrival['ImageURL']; ?>" alt="Product Image" height="200px">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><?php echo $row_new_arrival['ProductName']; ?></h5>
-                                        <p class="card-text"><?php echo number_format($row_new_arrival['Price'], 2); ?> Pkr</p>
+
+    <!-- New Arrival Section -->
+    <section class="mb-5">
+        <h2 class="text-center mb-4">New Arrivals</h2>
+        <div id="new-arrivals-carousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <?php
+                // Retrieve latest added products
+                $sql_new_arrivals = "SELECT * FROM products ORDER BY Timestamp DESC LIMIT 5";
+                $result_new_arrivals = mysqli_query($conn, $sql_new_arrivals);
+                $products_count = mysqli_num_rows($result_new_arrivals);
+                $active = true; // Set the first item as active
+
+                // Display products in carousel format
+                for ($i = 0; $i < $products_count; $i += 2) {
+                    ?>
+                    <div class="carousel-item <?php echo $active ? 'active' : ''; ?>">
+                        <div class="row">
+                            <?php
+                            for ($j = $i; $j < min($i + 3, $products_count); $j++) {
+                                mysqli_data_seek($result_new_arrivals, $j);
+                                $row_new_arrival = mysqli_fetch_assoc($result_new_arrivals);
+                                ?>
+                                <div class="col-md-4">
+                                    <div class="card" style="height: 100%;">
+                                        <img class="card-img-top" src="./admin/products_images/<?php echo $row_new_arrival['ImageURL']; ?>" alt="Product Image" style="height: 200px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo $row_new_arrival['ProductName']; ?></h5>
+                                            <p class="card-text"><?php echo number_format($row_new_arrival['Price'], 2); ?> Pkr</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <?php
-                        }
-                        ?>
+                                <?php
+                            }
+                            ?>
+                        </div>
+                    </div>
+                    <?php
+                    $active = false; // Set active to false after the first item
+                }
+                ?>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#new-arrivals-carousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#new-arrivals-carousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section mb-5">
+        <h2 class="text-center">Find Your Perfect Product</h2>
+        <form method="GET" action="" class="search-form">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search by product" name="search" value="<?php echo $search_query; ?>">
                     </div>
                 </div>
-                <?php
-                $active = false; // Set active to false after the first item
-            }
-            ?>
-        </div>
-        <a class="carousel-control-prev" href="#new-arrivals-carousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#new-arrivals-carousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
-    </div>
-</div>
-
-<div class="container mt-5">
-        <h2 class="mb-4">Available Products</h2>
-
-        <!-- Search form -->
-        <form method="GET" action="">
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <input type="text" class="form-control" placeholder="Search by product" name="search" value="<?php echo $search_query; ?>">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-list"></i></span>
+                        <select class="form-select" name="category">
+                            <option value="all" <?php if ($category_id == "all") echo "selected"; ?>>All Categories</option>
+                            <?php mysqli_data_seek($result_categories, 0); // Reset the pointer to the beginning of the result set
+                            while ($row_category = mysqli_fetch_assoc($result_categories)) : ?>
+                                <option value="<?php echo $row_category['id']; ?>" <?php if ($row_category['id'] == $category_id) echo "selected"; ?>><?php echo $row_category['name']; ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <select class="custom-select" name="category">
-                        <option value="all" <?php if ($category_id == "all") echo "selected"; ?>>All Categories</option>
-                        <?php while ($row_category = mysqli_fetch_assoc($result_categories)) : ?>
-                            <option value="<?php echo $row_category['id']; ?>" <?php if ($row_category['id'] == $category_id) echo "selected"; ?>><?php echo $row_category['name']; ?></option>
-                        <?php endwhile; ?>
-                    </select>
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-tag"></i></span>
+                        <input type="text" class="form-control" placeholder="Product name" name="product_name" value="<?php echo $product_name; ?>">
+                    </div>
                 </div>
-                <div class="col-md-2 mb-3">
-                    <input type="text" class="form-control" placeholder="Search by product name" name="product_name" value="<?php echo $product_name; ?>">
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-dollar-sign"></i></span>
+                        <input type="number" class="form-control" placeholder="Min price" name="min_price" value="<?php echo $min_price; ?>">
+                    </div>
                 </div>
-                <div class="col-md-1 mb-3">
-                    <input type="number" class="form-control" placeholder="Min price" name="min_price" value="<?php echo $min_price; ?>">
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-dollar-sign"></i></span>
+                        <input type="number" class="form-control" placeholder="Max price" name="max_price" value="<?php echo $max_price; ?>">
+                    </div>
                 </div>
-                <div class="col-md-1 mb-3">
-                    <input type="number" class="form-control" placeholder="Max price" name="max_price" value="<?php echo $max_price; ?>">
-                </div>
-                <div class="col-md-1 mb-3">
-                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                <div class="col-12 text-center">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search me-2"></i>Search Products
+                    </button>
                 </div>
             </div>
         </form>
+    </section>
 
-        <!-- Display products -->
+    <!-- Products Display Section -->
+    <section>
+        <h2 class="text-center mb-4 " id="featured">Available Products</h2>
         <?php if (mysqli_num_rows($result_products) > 0) : ?>
-            <div class="row">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
                 <?php while ($row = mysqli_fetch_assoc($result_products)) : ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <img class="card-img-top" height="250px" src="admin/products_images/<?php echo $row['ImageURL']; ?>" alt="Product Image">
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="./admin/products_images/<?php echo $row['ImageURL']; ?>" class="card-img-top" alt="<?php echo $row['ProductName']; ?>" style="height: 200px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo $row['ProductName']; ?></h5>
-                                <p class="card-text">Category: <?php echo $row['category_name']; ?></p>
-                                <p class="card-text">Description: <?php echo $row['Description']; ?></p>
-                                <p class="card-text">Quantity Available: <?php echo $row['StockQuantity']; ?></p>
-                                <p class="card-text">Size: <?php echo $row['SizeGuide']; ?></p>
-                                <p class="card-text"><strong>Price: </strong><?php echo number_format($row['Price'], 2); ?> Pkr</p>
-                                <?php
-                                ?>
-                                <form action="add_to_cart.php" method="post" class="add-to-cart-form">
+                                <p class="card-text"><small class="text-muted">Category: <?php echo $row['category_name']; ?></small></p>
+                                <p class="card-text"><?php echo $row['Description']; ?></p>
+                                <p class="card-text">
+                                    <strong>Price:</strong> <?php echo number_format($row['Price'], 2); ?> Pkr<br>
+                                    <strong>In Stock:</strong> <?php echo $row['StockQuantity']; ?>
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <form action="login.php"  class="add-to-cart-form">
                                     <input type="hidden" name="product_id" value="<?php echo $row['ProductID']; ?>">
                                     <input type="hidden" class="max-quantity" value="<?php echo $row['StockQuantity']; ?>">
-                                    <div class="form-group">
-                                        <label for="quantity">Quantity:</label>
+                                    <div class="input-group mb-3">
                                         <input type="number" class="form-control quantity" name="quantity" value="1" min="1">
+                                        <button class="btn btn-outline-primary add-to-cart-btn" type="submit" name="add_to_cart">
+                                            <i class="fas fa-cart-plus"></i> Add to Cart
+                                        </button>
                                     </div>
-                                <a href="login.php" class="btn btn-primary">Add to Cart</a>
-                                <a href="view_ratings_reviews.php?product_id=<?php echo $row['ProductID']; ?>" class="btn btn-primary">Reviews</a>
-
                                 </form>
-                        
+                                <a href="view_ratings_reviews.php?product_id=<?php echo $row['ProductID']; ?>" class="btn btn-outline-secondary w-100">
+                                    <i class="fas fa-star"></i> Reviews
+                                </a>
                             </div>
                         </div>
                     </div>
                 <?php endwhile; ?>
             </div>
         <?php else : ?>
-            <div class="alert alert-info" role="alert">No products found matching the search criteria.</div>
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> No products found matching the search criteria.
+            </div>
         <?php endif; ?>
+    </section>
+</div>
+
+
+<!-- Why Choose Us Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose Frozen Food Panda?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-box">
+                    <i class="fas fa-shipping-fast fa-3x mb-3 text-primary"></i>
+                    <h4>Fast Delivery</h4>
+                    <p>Same-day delivery for orders placed before 2 PM</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-box">
+                    <i class="fas fa-snowflake fa-3x mb-3 text-primary"></i>
+                    <h4>Premium Quality</h4>
+                    <p>Flash-frozen to preserve nutrients and taste</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-box">
+                    <i class="fas fa-shield-alt fa-3x mb-3 text-primary"></i>
+                    <h4>Safe Packaging</h4>
+                    <p>Temperature-controlled packaging for food safety</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const forms = document.querySelectorAll('.add-to-cart-form');
-            forms.forEach(form => {
-                form.addEventListener('submit', function(event) {
-                    const quantityInput = form.querySelector('.quantity');
-                    const maxQuantity = parseInt(form.querySelector('.max-quantity').value);
-                    const enteredQuantity = parseInt(quantityInput.value);
-                    if (enteredQuantity > maxQuantity) {
-                        event.preventDefault(); // Prevent form submission
-                        alert(`Quantity exceeds available stock (${maxQuantity}) for this product.`);
-                    }
-                });
+</section>
+
+
+
+<!-- Statistics Section -->
+<section class="stats-section text-center my-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="display-4">5000+</h3>
+                        <p class="card-text">Happy Customers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="display-4">200+</h3>
+                        <p class="card-text">Products</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="display-4">50+</h3>
+                        <p class="card-text">Cities Covered</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="display-4">24/7</h3>
+                        <p class="card-text">Customer Support</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+  <!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h3>Subscribe to Our Newsletter</h3>
+                <p class="mb-4">Get updates about new products and special offers!</p>
+                <form class="form-inline justify-content-center">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <input type="email" class="form-control" placeholder="Enter your email">
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('.add-to-cart-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(event) {
+                const quantityInput = form.querySelector('.quantity');
+                const maxQuantity = parseInt(form.querySelector('.max-quantity').value);
+                const enteredQuantity = parseInt(quantityInput.value);
+                if (enteredQuantity > maxQuantity) {
+                    event.preventDefault();
+                    alert(`Quantity exceeds available stock (${maxQuantity}) for this product.`);
+                }
             });
         });
-    </script>
+    });
+</script>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
-  <footer class="footer bg-dark text-white py-4 mt-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <h5>Contact Information</h5>
-        <p>Email: info@example.com</p>
-        <p>Phone: +1-123-456-7890</p>
-        <p>Address: 1234 Main Street, City, State, ZIP</p>
-      </div>
-      <div class="col-md-6 text-light">
-        <h5>Follow Us</h5>
-        <ul class="list-inline">
-          <li class="list-inline-item">
-            <a href="#" target="_blank" class="text-white">
-              <i class="fab fa-facebook-square">Facebook</i>
-            </a>
-          </li>
-          <li class="list-inline-item">
-            <a href="#" target="_blank" class="text-white">
-              <i class="fab fa-twitter">Twitter</i>
-            </a>
-          </li>
-          <li class="list-inline-item">
-            <a href="#" target="_blank" class="text-white">
-              <i class="fab fa-instagram">Instagram</i>
-            </a>
-          </li>
-          <li class="list-inline-item">
-            <a href="login.php" target="_blank" class="text-white">
-              <i class=" fab fa-instagram">Complaint Here</i>
-            </a>
-          </li>
-        </ul>
-      </div>
+<!-- Enhanced Footer -->
+<footer class="footer bg-dark text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5>About Frozen Food Panda</h5>
+                <p>Your premier destination for high-quality frozen foods. We deliver restaurant-quality meals right to your doorstep.</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white">About Us</a></li>
+                    <li><a href="#" class="text-white">FAQs</a></li>
+                    <li><a href="#" class="text-white">Delivery Information</a></li>
+                    <li><a href="login.php" class="text-white">Customer Support</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-phone mr-2"></i> +92-123-456-7890</li>
+                    <li><i class="fas fa-envelope mr-2"></i> info@frozenfoodpanda.com</li>
+                    <li><i class="fas fa-map-marker-alt mr-2"></i> 123 Food Street, Karachi, Pakistan</li>
+                </ul>
+                <div class="social-links mt-3">
+                    <a href="#" class="text-white mr-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white mr-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white mr-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr class="bg-light">
+        <div class="row">
+            <div class="col text-center">
+                <p class="mb-0">&copy; 2024 Frozen Food Panda. All rights reserved.</p>
+            </div>
+        </div>
     </div>
-    <div class="row mt-3">
-      <div class="col">
-        <p class="text-center mb-0">&copy; 2024 Your Online Thread & Trend Clothing Brand Project. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
 </footer>
 
-  <!-- Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rGIO3CjEm4C4jXCDAjz3fOxEqGzX6s8EcddP3p6Mv9O+frC6f2" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJcmw3gZ/Fl7EynXDobJ14zKPF3/P6E8F81Gqn6f4U5sok/Q5gRV2" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+b0WYbCr" crossorigin="anonymous"></script>
+<!-- Bootstrap JS and other scripts -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 </body>
 </html>
 
-<?php
-// Close the database connection
-$conn->close();
-?>
+<?php $conn->close(); ?>

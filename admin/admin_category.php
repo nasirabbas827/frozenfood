@@ -2,9 +2,9 @@
 session_start();
 include 'config.php';
 
-// Check if user is logged in as admin
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "admin") {
-  header("location: admin_login.php");
+// Check if the user is logged in as an admin
+if (!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin") {
+  header("Location: admin_login.php");
   exit;
 }
 
@@ -46,20 +46,26 @@ $result = mysqli_query($conn, $sql_select);
 <body>
   <?php include 'admin_navbar.php'; ?>
   <div class="container mt-4">
+  <div class="card mx-auto" style="max-width: 600px;">
+  <div class="card-body">
     <h2>Categories</h2>
+    <h4>Add New Category</h4>
+
     <?php if (isset($success_message)) : ?>
       <div class="alert alert-success"><?php echo $success_message; ?></div>
     <?php endif; ?>
     <?php if (isset($error_message)) : ?>
       <div class="alert alert-danger"><?php echo $error_message; ?></div>
     <?php endif; ?>
-    <h4>Add New Category</h4>
+
     <form method="post">
       <div class="form-group">
         <input type="text" class="form-control" name="category_name" placeholder="Category Name" required>
       </div>
       <button type="submit" class="btn btn-primary" name="add_category">Add Category</button>
     </form>
+    </div>
+    </div>
     <h4 class="mt-4">Existing Categories</h4>
     <table class="table">
       <thead>

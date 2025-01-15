@@ -3,8 +3,8 @@ session_start();
 include('config.php');
 
 // Check if user is logged in as a buyer
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "buyer") {
-    header("location: login.php");
+if (!isset($_SESSION["id"])) {
+    header("location: ../login.php");
     exit;
 }
 // Fetch user details from the database
@@ -20,6 +20,7 @@ if (!$row) {
 }
 
 $user_email = $row['email'];
+
 // Check if cart session exists and is not empty
 if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
     echo "Your cart is empty.";
@@ -36,7 +37,7 @@ foreach ($cart_items as $item) {
 }
 
 // Apply discount
-$discount = $total_price ;
+$discount = $total_price;
 ?>
 
 <!DOCTYPE html>
@@ -77,8 +78,10 @@ $discount = $total_price ;
                 </table>
                 <div class="text-right">
                     <h4>Total: <?php echo number_format($total_price, 2); ?> Pkr</h4>
-                    </div>
-                    <div>
+                </div>
+                <div>
+                <div class="card mx-auto" style="max-width: 600px;">
+                <div class="card-body">
                     <form action="place_order.php" method="post">
                         <input type="hidden" name="total_price" value="<?php echo $total_price; ?>">
                         <div class="form-group">
@@ -91,11 +94,19 @@ $discount = $total_price ;
                         </div>
                         <div class="form-group">
                             <label for="payment_method">Payment Method:</label>
-                            <input type="text" class="form-control" id="payment_method" value="Cash on Delivery" readonly>
+                            <select class="form-control" id="payment_method" name="payment_method" required>
+                                <option value="cash_on_delivery">Cash on Delivery</option>
+                                <option value="debit_card">Debit Card</option>
+                                <option value="easy_paisa">Easy Paisa</option>
+                                <option value="jazz_cash">Jazz Cash</option>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary mb-5">Place Order</button>
                     </form>
                 </div>
+                </div>
+                </div>
+
             </div>
         </div>
     </div>

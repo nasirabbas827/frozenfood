@@ -1,30 +1,35 @@
 <!-- Navigation Bar -->
-<nav class="navbar navbar-expand-md bg-dark navbar-dark">
-    <a class="navbar-brand" href="buyer_home.php">Buyer Dashboard</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-      <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <!-- Navbar Brand (Left Aligned) -->
+    <a class="navbar-brand ms-3" href="buyer_home.php">Customer Dashboard</a>
+    
+    <!-- Toggler for Mobile View -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-      <ul class="navbar-nav ml-auto">
-      <li class="nav-item">
-          <a class="nav-link" href="buyer_home.php">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="update_profile.php"><?php echo $_SESSION["email"]; ?></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="view_cart.php">Cart</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="my_orders.php">My Orders</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="add_complain.php">Complaints</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="logout.php">Logout</a>
-        </li>
-      </ul>
+    
+    <!-- Navbar Items (Right Aligned) -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto ml-auto"> <!-- Use ms-auto for Bootstrap 5, ml-auto for Bootstrap 4 -->
+            <li class="nav-item">
+                <a class="nav-link" href="buyer_home.php">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="update_profile.php"><?php echo $_SESSION["email"]; ?></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="view_cart.php">Cart</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="my_orders.php">My Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="add_complain.php">Complaints</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="logout.php">Logout</a>
+            </li>
+        </ul>
     </div>
-  </nav>
+</nav>
+

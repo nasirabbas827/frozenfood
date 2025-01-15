@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "thread_db";
+$dbname = "frozenfood_db";
 
 // create database connection
 $conn = mysqli_connect($servername, $username, $password, $dbname);

@@ -2,8 +2,9 @@
 include('config.php');
 
 // define variables and initialize with empty values
-$username = $password = $usertype = $email = $phone = "";
-$username_err = $password_err = $usertype_err = $email_err = $phone_err = "";
+$username = $password = $email = $phone = "";
+$username_err = $password_err = $email_err = $phone_err = "";
+$success_message = "";
 
 // check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -31,13 +32,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password_err = "Please enter a password.";
     } else {
         $password = trim($_POST["password"]);
-    }
-
-    // validate user type
-    if (empty(trim($_POST["usertype"]))) {
-        $usertype_err = "Please select a user type.";
-    } else {
-        $usertype = trim($_POST["usertype"]);
+        if (!preg_match('/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*\d)[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/', $password)) {
+            $password_err = "Password must be at least 8 characters long, include a special character, an uppercase letter, and a number.";
+        }
     }
 
     // validate email
@@ -65,6 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $phone_err = "Please enter a phone number.";
     } else {
         $phone = trim($_POST["phone"]);
+        if (!preg_match('/^\d{10,11}$/', $phone)) {
+            $phone_err = "Please enter a valid phone number.";
+        }
         // check if phone number already exists in database
         $sql = "SELECT id FROM users WHERE phone = ?";
         $stmt = mysqli_prepare($conn, $sql);
@@ -72,31 +72,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $param_phone = $phone;
         mysqli_stmt_execute($stmt);
         mysqli_stmt_store_result($stmt);
-        if (!preg_match('/^\d{10,11}$/', $phone)) {
-            $phone_err = "Please enter a valid phone number.";
-        }
         if (mysqli_stmt_num_rows($stmt) == 1) {
             $phone_err = "This phone number is already taken.";
         }
     }
 
     // if no errors, insert user into database
-    if (empty($username_err) && empty($password_err) && empty($usertype_err) && empty($email_err) && empty($phone_err)) {
-        // Set the user status to "pending"
-        $status = "pending";
-
-        $sql = "INSERT INTO users (username, password, usertype, email, phone, status) VALUES (?, ?, ?, ?, ?, ?)";
+    if (empty($username_err) && empty($password_err) && empty($email_err) && empty($phone_err)) {
+        $sql = "INSERT INTO users (username, password, email, phone) VALUES (?, ?, ?, ?)";
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "ssssss", $param_username, $param_password, $param_usertype, $param_email, $param_phone, $status);
+        mysqli_stmt_bind_param($stmt, "ssss", $param_username, $param_password, $param_email, $param_phone);
         $param_username = $username;
         $param_password = password_hash($password, PASSWORD_DEFAULT);
-        $param_usertype = $usertype;
         $param_email = $email;
         $param_phone = $phone;
-        mysqli_stmt_execute($stmt);
+        if (mysqli_stmt_execute($stmt)) {
+            $success_message = "User registered successfully!";
+        }
         mysqli_stmt_close($stmt);
         mysqli_close($conn);
-        echo '<div class="alert alert-success" role="alert">User registered successfully. Your account is pending approval.</div>';
     }
 }
 ?>
@@ -109,15 +103,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/style.css">
+    <style>
 
+
+        .registration-container {
+            max-width: 500px;
+            margin: auto;
+            margin-top: 50px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+    </style>
 </head>
 
 <body>
     <?php include('navbar.php'); ?>
 
-    <div class="container mt-5">
-        <h2 class="text-center mt-5">User Registration</h2>
+    <div class="registration-container mb-5">
+        <h2 class="text-center">User Registration</h2>
         <p class="text-center">Please fill in your details to register.</p>
+
+        <?php if (!empty($success_message)) : ?>
+            <div class="alert alert-success" role="alert">
+                <?php echo $success_message; ?>
+            </div>
+        <?php endif; ?>
 
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group">
@@ -127,31 +154,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="form-group">
-                <label>User Type</label>
-                <div class="ml-5 form-check form-check-inline <?php echo (!empty($usertype_err)) ? 'is-invalid' : ''; ?>">
-                    <input class="form-check-input" type="radio" name="usertype" id="buyer" value="buyer" <?php if ($usertype == "buyer") echo " checked"; ?>>
-                    <label class="form-check-label" for="buyer">Buyer ( Customer )</label>
-                </div>
-                <span class="invalid-feedback"><?php echo $usertype_err; ?></span>
-            </div>
-
-            <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $email; ?>">
                 <span class="invalid-feedback"><?php echo $email_err; ?></span>
             </div>
+
             <div class="form-group">
                 <label>Password</label>
                 <input type="password" name="password" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $password; ?>">
                 <span class="invalid-feedback"><?php echo $password_err; ?></span>
             </div>
+
             <div class="form-group">
                 <label>Phone Number</label>
                 <input type="number" name="phone" class="form-control <?php echo (!empty($phone_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $phone; ?>">
                 <span class="invalid-feedback"><?php echo $phone_err; ?></span>
             </div>
+
             <div class="form-group text-center">
-                <input type="submit" class="btn btn-primary" value="Register">
+                <input type="submit" class="btn btn-primary btn-block" value="Register">
             </div>
         </form>
 

@@ -3,8 +3,8 @@ session_start();
 include('config.php');
 
 // Check if user is logged in
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "buyer") {
-    header("location: login.php");
+if (!isset($_SESSION["id"])) {
+    header("location: ../login.php");
     exit;
 }
 
@@ -39,6 +39,8 @@ $result_orders = mysqli_query($conn, $sql_orders);
                                 <th>Total Price</th>
                                 <th>Delivery Address</th>
                                 <th>Order Status</th>
+                                <th>Payment Method</th>
+                                <th>Payment Status</th>
                                 <th>Items</th>
                                 <th>Actions</th>
                             </tr>
@@ -50,6 +52,8 @@ $result_orders = mysqli_query($conn, $sql_orders);
                                     <td><?php echo number_format($row['TotalPrice'], 2); ?> Pkr</td>
                                     <td><?php echo $row['DeliveryAddress']; ?></td>
                                     <td><?php echo $row['OrderStatus']; ?></td>
+                                    <td><?php echo $row['PaymentMethod']; ?></td>
+                                    <td><?php echo $row['PaymentStatus']; ?></td>
                                     <td>
                                         <?php
                                         $order_id = $row['OrderID'];
@@ -68,6 +72,10 @@ $result_orders = mysqli_query($conn, $sql_orders);
                                         ?>
                                     </td>
                                     <td>
+                                        <?php
+                                        if ($row['OrderStatus'] == 'Pending' && $row['PaymentStatus'] == 'unpaid' && $row['PaymentMethod'] != 'Cash on Delivery'): ?>
+                                            <a href="paynow.php?order_id=<?php echo $row['OrderID']; ?>" class="btn btn-success">Pay Now</a>
+                                        <?php endif; ?>
                                         <?php if ($row['OrderStatus'] == 'Delivered'): ?>
                                             <a href="review.php?order_id=<?php echo $row['OrderID']; ?>" class="btn btn-primary">Review</a>
                                         <?php endif; ?>

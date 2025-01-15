@@ -3,11 +3,11 @@
 session_start();
 include 'config.php';
 
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "admin") {
-    header("location: admin_login.php");
+// Check if the user is logged in as an admin
+if (!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin") {
+    header("Location: admin_login.php");
     exit;
 }
-
 // Fetch categories from the database
 $sql_categories = "SELECT id, name FROM categories";
 $result_categories = mysqli_query($conn, $sql_categories);
@@ -22,7 +22,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $price = $_POST['price'];
     $stock_quantity = $_POST['stock_quantity'];
     $category_id = $_POST['category_id'];
-    $size_guide = $_POST['size_guide']; // Added Size Guide field
 
     // Get current timestamp
     $timestamp = date('Y-m-d H:i:s');
@@ -38,9 +37,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Upload image
         if (move_uploaded_file($_FILES['product_image']['tmp_name'], $upload_path)) {
             // Insert product into the database
-            $sql_insert_product = "INSERT INTO products (ProductName, Description, Price, StockQuantity, CategoryID, ImageURL, SizeGuide, Timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql_insert_product = "INSERT INTO products (ProductName, Description, Price, StockQuantity, CategoryID, ImageURL, Timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt_insert_product = mysqli_prepare($conn, $sql_insert_product);
-            mysqli_stmt_bind_param($stmt_insert_product, "ssdissss", $product_name, $description, $price, $stock_quantity, $category_id, $image_filename, $size_guide, $timestamp);
+            mysqli_stmt_bind_param($stmt_insert_product, "ssdisss", $product_name, $description, $price, $stock_quantity, $category_id, $image_filename, $timestamp);
             if (mysqli_stmt_execute($stmt_insert_product)) {
                 $success_message = 'Product added successfully.';
             } else {
@@ -69,47 +68,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php include 'admin_navbar.php'; ?>
 
     <div class="container mt-5 mb-5">
-        <h2 class="text-center">Add Product</h2>
-        <!-- Display success message -->
-        <?php if ($success_message) : ?>
-            <div class="alert alert-success"><?php echo $success_message; ?></div>
-        <?php endif; ?>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label>Product Name</label>
-                <input type="text" class="form-control" name="product_name" required>
+        <div class="card mx-auto" style="max-width: 600px;">
+            <div class="card-body">
+                <h2 class="text-center">Add Product</h2>
+                <!-- Display success message -->
+                <?php if ($success_message) : ?>
+                    <div class="alert alert-success"><?php echo $success_message; ?></div>
+                <?php endif; ?>
+                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" class="form-control" name="product_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" name="description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" class="form-control" name="price" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type="number" class="form-control" name="stock_quantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control" name="category_id" required>
+                            <?php while ($row_category = mysqli_fetch_assoc($result_categories)) : ?>
+                                <option value="<?php echo $row_category['id']; ?>"><?php echo $row_category['name']; ?></option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Image</label>
+                        <input type="file" class="form-control-file" name="product_image" accept="image/png, image/jpeg, image/jpg" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                    <a class="btn btn-outline-dark" href="view_products.php">View Products</a>
+                </form>
             </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea class="form-control" name="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label>Price</label>
-                <input type="number" class="form-control" name="price" required>
-            </div>
-            <div class="form-group">
-                <label>Stock Quantity</label>
-                <input type="number" class="form-control" name="stock_quantity" required>
-            </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select class="form-control" name="category_id" required>
-                    <?php while ($row_category = mysqli_fetch_assoc($result_categories)) : ?>
-                        <option value="<?php echo $row_category['id']; ?>"><?php echo $row_category['name']; ?></option>
-                    <?php endwhile; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Size Guide</label>
-                <textarea class="form-control" name="size_guide" placeholder="Provide size details like S, M, L, XL, or custom measurements."></textarea>
-            </div>
-            <div class="form-group">
-                <label>Product Image</label>
-                <input type="file" class="form-control-file" name="product_image" accept="image/png, image/jpeg, image/jpg" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Add Product</button>
-            <a class="btn btn-outline-dark" href="view_products.php">View Products</a>
-        </form>
+        </div>
     </div>
 </body>
 

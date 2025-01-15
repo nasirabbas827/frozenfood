@@ -3,8 +3,8 @@
 session_start();
 include('config.php');
 
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "buyer") {
-    header("location: login.php");
+if (!isset($_SESSION["id"])) {
+    header("location: ../login.php");
     exit;
 }
 

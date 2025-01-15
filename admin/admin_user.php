@@ -3,28 +3,14 @@
 session_start();
 include 'config.php';
 
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "admin") {
-    header("location: admin_login.php");
+// Check if the user is logged in as an admin
+if (!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin") {
+    header("Location: admin_login.php");
     exit;
 }
 
-// If form is submitted, update user status
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if(isset($_POST['user_id']) && isset($_POST['new_status'])) {
-        $user_id = $_POST['user_id'];
-        $new_status = $_POST['new_status'];
-        
-        // Update user status in the database
-        $sql = "UPDATE users SET status = ? WHERE id = ?";
-        $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, "si", $new_status, $user_id);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-    }
-}
-
 // Fetch all users from the database
-$sql = "SELECT id, username, email, usertype, status FROM users";
+$sql = "SELECT id, username, email FROM users";
 $result = mysqli_query($conn, $sql);
 
 ?>
@@ -50,9 +36,6 @@ $result = mysqli_query($conn, $sql);
                         <th>ID</th>
                         <th>Username</th>
                         <th>Email</th>
-                        <th>User Type</th>
-                        <th>Status</th>
-                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,21 +45,6 @@ $result = mysqli_query($conn, $sql);
                         echo "<td>" . $row['id'] . "</td>";
                         echo "<td>" . $row['username'] . "</td>";
                         echo "<td>" . $row['email'] . "</td>";
-                        echo "<td>" . $row['usertype'] . "</td>";
-                        echo "<td>" . $row['status'] . "</td>";
-                        echo "<td>
-                            <form action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "' method='post'>
-                                <input type='hidden' name='user_id' value='" . $row['id'] . "'>
-                                <div class='form-group'>
-                                    <select class='form-control' name='new_status'>
-                                        <option value='pending'>Pending</option>
-                                        <option value='approved'>Approved</option>
-                                        <option value='rejected'>Rejected</option>
-                                    </select>
-                                </div>
-                                <button type='submit' class='btn btn-primary'>Update Status</button>
-                            </form>
-                        </td>";
                         echo "</tr>";
                     }
                     ?>

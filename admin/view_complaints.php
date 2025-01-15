@@ -3,11 +3,11 @@ session_start();
 include('config.php');
 
 // Check if user is logged in as admin
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "admin") {
-    header("location: admin_login.php");
+// Check if the user is logged in as an admin
+if (!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin") {
+    header("Location: admin_login.php");
     exit;
 }
-
 // Fetch all complaints
 $sql_complaints = "SELECT c.ComplaintID, u.Username, c.ComplaintReason, c.Text, c.SubmissionDate 
                    FROM complaints c 

@@ -3,8 +3,8 @@ session_start();
 include('config.php');
 
 // Check if user is logged in
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "buyer") {
-    header("location: login.php");
+if (!isset($_SESSION["id"])) {
+    header("location: ../login.php");
     exit;
 }
 
@@ -52,11 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Move the uploaded file to the uploads directory
             if (move_uploaded_file($image_tmp_name, $image_destination)) {
-                // Insert review into the database
-                $sql_insert_review = "INSERT INTO reviews (OrderID, UserID, Comment, Rating, Image) 
-                                      VALUES ($order_id, {$_SESSION['id']}, '$comment', $rating, '$image_new_name')";
+                // Insert review into the database with the status as 'pending'
+                $sql_insert_review = "INSERT INTO reviews (OrderID, UserID, Comment, Rating, Image, Status) 
+                                      VALUES ($order_id, {$_SESSION['id']}, '$comment', $rating, '$image_new_name', 'pending')";
                 if (mysqli_query($conn, $sql_insert_review)) {
-                    $success_message = "Review submitted successfully.";
+                    $success_message = "Review submitted successfully. It will be approved after verification.";
                 } else {
                     $upload_error = "Error: " . mysqli_error($conn);
                 }
@@ -83,6 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php include('buyer_navbar.php'); ?>
 
     <div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-body">
         <h2 class="mb-4">Submit Review</h2>
         <?php if (isset($success_message)): ?>
             <div class="alert alert-success" role="alert"><?php echo $success_message; ?></div>
@@ -112,6 +114,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+    </div>
+    </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>

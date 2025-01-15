@@ -4,7 +4,7 @@ include('config.php');
 
 // Check if user is logged in
 if (!isset($_SESSION["id"])) {
-    header("location: login.php");
+    header("location: ../login.php");
     exit;
 }
 
@@ -40,6 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php include('buyer_navbar.php'); ?>
 
     <div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-body">
         <h2>Submit Complaint</h2>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <div class="form-group">
@@ -52,6 +54,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+    </div>
+    </div>
     </div>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>

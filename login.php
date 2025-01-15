@@ -1,30 +1,30 @@
 <?php
 include('config.php');
 
-// define variables and initialize with empty values
+// Define variables and initialize with empty values
 $email = $password = "";
 $email_err = $password_err = "";
 
-// check if form is submitted
+// Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // validate email
+    // Validate email
     if (empty(trim($_POST["email"]))) {
         $email_err = "Please enter an email.";
     } else {
         $email = trim($_POST["email"]);
     }
 
-    // validate password
+    // Validate password
     if (empty(trim($_POST["password"]))) {
         $password_err = "Please enter a password.";
     } else {
         $password = trim($_POST["password"]);
     }
 
-    // if no errors, check credentials and log in user
+    // If no errors, check credentials and log in user
     if (empty($email_err) && empty($password_err)) {
-        $sql = "SELECT id, email, password, usertype, status FROM users WHERE email = ?";
+        $sql = "SELECT id, email, password FROM users WHERE email = ?";
         $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "s", $param_email);
         $param_email = $email;
@@ -32,31 +32,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_store_result($stmt);
 
         if (mysqli_stmt_num_rows($stmt) == 1) {
-            mysqli_stmt_bind_result($stmt, $id, $email, $hashed_password, $usertype, $status);
+            mysqli_stmt_bind_result($stmt, $id, $email, $hashed_password);
             if (mysqli_stmt_fetch($stmt)) {
-                if ($status == "approved") {
+                
                     if (password_verify($password, $hashed_password)) {
-                        // password is correct, start session and log in user
+                        // Password is correct, start session and log in user
                         session_start();
                         $_SESSION["id"] = $id;
                         $_SESSION["email"] = $email;
-                        $_SESSION["usertype"] = $usertype;
-                        if ($usertype == "buyer") {
-                            header("location: ./buyer/buyer_home.php");
-                        } else {
-                            header("location: index.php");
-                        }
+                        header("location: buyer/buyer_home.php");
+                        exit();
                     } else {
-                        // password is incorrect
                         $password_err = "The password you entered is incorrect.";
                     }
-                } else {
-                    // account status is not approved
-                    $email_err = "Your account is not approved yet. Please wait for approval.";
-                }
+                
             }
         } else {
-            // email not found in database
             $email_err = "No account found with that email.";
         }
 
@@ -77,34 +68,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/style.css">
 
-   
+    <style>
+        .login-container {
+            max-width: 500px;
+            margin: auto;
+            margin-top: 50px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .invalid-feedback {
+            color: red;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 
 <body>
-<?php include('navbar.php'); ?>
+    <?php include('navbar.php'); ?>
 
-    <div class="container mt-5">
+    <div class="login-container mb-5">
         <h2 class="text-center">User Login</h2>
         <p class="text-center">Please fill in your credentials to log in.</p>
 
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <div class="form-group">
                 <label>Email</label>
-                <input type="text" name="email" class="form-control" value="<?php echo $email; ?>">
-                <span><?php echo $email_err; ?></span>
+                <input type="text" name="email" class="form-control <?php echo (!empty($email_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $email; ?>">
+                <span class="invalid-feedback"><?php echo $email_err; ?></span>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" class="form-control">
-                <span><?php echo $password_err; ?></span>
+                <input type="password" name="password" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>">
+                <span class="invalid-feedback"><?php echo $password_err; ?></span>
             </div>
             <div class="form-group text-center">
-                <input type="submit" value="Log in" class="btn btn-primary">
+                <input type="submit" value="Log in" class="btn btn-primary btn-block">
             </div>
         </form>
-        <p class="text-center">Have'nt any Account <a href="register.php">Register here</a></p>
-        <p class="text-center">Go to  <a href="index.php">Home Page</a></p>
-        
+
+        <p class="text-center"><a href="forgot_password.php">Forgot Password?</a></p>
+        <p class="text-center">Don't have an account? <a href="register.php">Register here</a></p>
+        <p class="text-center">Go to <a href="index.php">Home Page</a></p>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -114,4 +136,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </body>
 
 </html>
-

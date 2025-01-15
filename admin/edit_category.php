@@ -3,11 +3,11 @@ session_start();
 include 'config.php';
 
 // Check if user is logged in as admin
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "admin") {
-    header("location: admin_login.php");
+// Check if the user is logged in as an admin
+if (!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin") {
+    header("Location: admin_login.php");
     exit;
 }
-
 // Check if category ID is provided
 if (!isset($_GET['id'])) {
     header("location: admin_categories.php");
@@ -44,6 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_category'])) {
 <body>
     <?php include 'admin_navbar.php'; ?>
     <div class="container mt-4">
+    <div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-body">
         <h2>Edit Category</h2>
         <?php if (isset($success_message)) : ?>
             <div class="alert alert-success"><?php echo $success_message; ?></div>
@@ -58,6 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_category'])) {
             </div>
             <button type="submit" class="btn btn-primary" name="update_category">Update Category</button>
         </form>
+    </div>
+    </div>
     </div>
 
     <!-- Add Bootstrap JS (Optional) -->

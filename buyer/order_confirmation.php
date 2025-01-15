@@ -1,8 +1,8 @@
 <?php
 session_start();
 include('config.php');
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "buyer") {
-    header("location: login.php");
+if (!isset($_SESSION["id"])) {
+    header("location: ../login.php");
     exit;
 }
 // Check if order ID is provided in the URL
@@ -44,7 +44,7 @@ if (!$order_details) {
                     <h4 class="alert-heading">Thank you for your order!</h4>
                     <p>Your order has been placed successfully. Your order ID is: <?php echo $order_id; ?></p>
                     <hr>
-                    <p class="mb-0">Total Price: $<?php echo number_format($order_details['TotalPrice'], 2); ?></p>
+                    <p class="mb-0">Total Price: Pkr<?php echo number_format($order_details['TotalPrice'], 2); ?></p>
                     <p class="mb-0">Delivery Address: <?php echo $order_details['DeliveryAddress']; ?></p>
                 </div>
             </div>

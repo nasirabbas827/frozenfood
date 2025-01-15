@@ -3,11 +3,11 @@
 session_start();
 include 'config.php';
 
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "admin") {
-    header("location: admin_login.php");
+// Check if the user is logged in as an admin
+if (!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin") {
+    header("Location: admin_login.php");
     exit;
 }
-
 // Check if product ID is provided in the URL
 if (!isset($_GET['product_id'])) {
     header("location: view_products.php");
@@ -38,7 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $price = $_POST['price'];
     $stock_quantity = $_POST['stock_quantity'];
     $category_id = $_POST['category_id'];
-    $size_guide = $_POST['size_guide'];
     $updated_image = false; // Flag to check if image is updated
 
     // Check if a new image is uploaded
@@ -57,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Update product in the database
     $sql_update_product = "UPDATE products 
-                           SET ProductName = ?, Description = ?, Price = ?, StockQuantity = ?, CategoryID = ?, SizeGuide = ?";
+                           SET ProductName = ?, Description = ?, Price = ?, StockQuantity = ?, CategoryID = ?";
     if ($updated_image) {
         // Include image update if a new image is uploaded
         $sql_update_product .= ", ImageURL = ?";
@@ -66,9 +65,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt_update_product = mysqli_prepare($conn, $sql_update_product);
 
     if ($updated_image) {
-        mysqli_stmt_bind_param($stmt_update_product, "ssdisssi", $product_name, $description, $price, $stock_quantity, $category_id, $size_guide, $image_filename, $product_id);
+        mysqli_stmt_bind_param($stmt_update_product, "sssssss", $product_name, $description, $price, $stock_quantity, $category_id, $image_filename, $product_id);
     } else {
-        mysqli_stmt_bind_param($stmt_update_product, "ssdissi", $product_name, $description, $price, $stock_quantity, $category_id, $size_guide, $product_id);
+        mysqli_stmt_bind_param($stmt_update_product, "ssssss", $product_name, $description, $price, $stock_quantity, $category_id, $product_id);
     }
 
     mysqli_stmt_execute($stmt_update_product);
@@ -96,47 +95,47 @@ $result_categories = mysqli_query($conn, $sql_categories);
     <?php include 'admin_navbar.php'; ?>
 
     <div class="container mt-5 mb-5">
-        <h2 class="text-center">Edit Product</h2>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>?product_id=<?php echo $product_id; ?>" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label>Product Name</label>
-                <input type="text" class="form-control" name="product_name" value="<?php echo htmlspecialchars($row_product['ProductName']); ?>" required>
+        <div class="card mx-auto" style="max-width: 600px;">
+            <div class="card-body">
+                <h2 class="text-center">Edit Product</h2>
+                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>?product_id=<?php echo $product_id; ?>" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" class="form-control" name="product_name" value="<?php echo htmlspecialchars($row_product['ProductName']); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" name="description" required><?php echo htmlspecialchars($row_product['Description']); ?></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="number" class="form-control" name="price" value="<?php echo $row_product['Price']; ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type="number" class="form-control" name="stock_quantity" value="<?php echo $row_product['StockQuantity']; ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="form-control" name="category_id" required>
+                            <?php while ($row_category = mysqli_fetch_assoc($result_categories)) : ?>
+                                <option value="<?php echo $row_category['id']; ?>" <?php if ($row_category['id'] == $row_product['CategoryID']) echo 'selected'; ?>>
+                                    <?php echo $row_category['name']; ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Image</label><br>
+                        <img src="products_images/<?php echo $row_product['ImageURL']; ?>" alt="Product Image" style="max-width: 200px; max-height: 200px;">
+                        <input type="file" class="form-control-file mt-3" name="product_image" accept="image/png, image/jpeg, image/jpg">
+                        <small class="form-text text-muted">Upload a new image to replace the existing one. Leave blank to keep the current image.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Product</button>
+                    <a class="btn btn-outline-dark" href="view_products.php">Cancel</a>
+                </form>
             </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea class="form-control" name="description" required><?php echo htmlspecialchars($row_product['Description']); ?></textarea>
-            </div>
-            <div class="form-group">
-                <label>Price</label>
-                <input type="number" class="form-control" name="price" value="<?php echo $row_product['Price']; ?>" required>
-            </div>
-            <div class="form-group">
-                <label>Stock Quantity</label>
-                <input type="number" class="form-control" name="stock_quantity" value="<?php echo $row_product['StockQuantity']; ?>" required>
-            </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select class="form-control" name="category_id" required>
-                    <?php while ($row_category = mysqli_fetch_assoc($result_categories)) : ?>
-                        <option value="<?php echo $row_category['id']; ?>" <?php if ($row_category['id'] == $row_product['CategoryID']) echo 'selected'; ?>>
-                            <?php echo $row_category['name']; ?>
-                        </option>
-                    <?php endwhile; ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Size Guide</label>
-                <textarea class="form-control" name="size_guide"><?php echo htmlspecialchars($row_product['SizeGuide']); ?></textarea>
-            </div>
-            <div class="form-group">
-                <label>Product Image</label><br>
-                <img src="products_images/<?php echo $row_product['ImageURL']; ?>" alt="Product Image" style="max-width: 200px; max-height: 200px;">
-                <input type="file" class="form-control-file mt-3" name="product_image" accept="image/png, image/jpeg, image/jpg">
-                <small class="form-text text-muted">Upload a new image to replace the existing one. Leave blank to keep the current image.</small>
-            </div>
-            <button type="submit" class="btn btn-primary">Update Product</button>
-            <a class="btn btn-outline-dark" href="view_products.php">Cancel</a>
-        </form>
+        </div>
     </div>
 </body>
 

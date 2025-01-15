@@ -3,11 +3,11 @@
 session_start();
 include 'config.php';
 
-if (!isset($_SESSION["id"]) || $_SESSION["usertype"] != "admin") {
-    header("location: admin_login.php");
+// Check if the user is logged in as an admin
+if (!isset($_SESSION["usertype"]) || $_SESSION["usertype"] !== "admin") {
+    header("Location: admin_login.php");
     exit;
 }
-
 
 // Fetch all products with category names
 $sql_products = "SELECT p.*, c.name AS category_name FROM products p INNER JOIN categories c ON p.CategoryID = c.id";
@@ -46,6 +46,9 @@ if (isset($_POST['delete_product'])) {
         .low-stock {
             background-color: #f8d7da !important;
         }
+        img{
+            height:150px;
+        }
     </style>
 </head>
 
@@ -71,7 +74,6 @@ if (isset($_POST['delete_product'])) {
                         <th>Price</th>
                         <th>Stock Quantity</th>
                         <th>Category</th>
-                        <th>Size</th>
                         <th>Image</th>
                         <th>Action</th>
                     </tr>
@@ -84,13 +86,12 @@ if (isset($_POST['delete_product'])) {
                             <td><?php echo $row_product['Price']; ?></td>
                             <td><?php echo $row_product['StockQuantity']; ?></td>
                             <td><?php echo $row_product['category_name']; ?></td>
-                            <td><?php echo $row_product['SizeGuide']; ?></td>
                             <td><img src="products_images/<?php echo $row_product['ImageURL']; ?>" style="max-width: 100px; max-height: 100px;"></td>
                             <td>
                                 <a href="edit_product.php?product_id=<?php echo $row_product['ProductID']; ?>" class="btn btn-primary btn-sm">Edit</a>
                                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="display: inline;">
                                     <input type="hidden" name="product_id" value="<?php echo $row_product['ProductID']; ?>">
-                                    <button type="submit" name="delete_product" class="btn btn-danger btn-sm mt-2" onclick="return confirm('Are you sure you want to delete this product?');">Delete</button>
+                                    <button type="submit" name="delete_product" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</button>
                                 </form>
                             </td>
                         </tr>
