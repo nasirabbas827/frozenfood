@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $mail->Host = 'smtp.gmail.com';                            // Specify main and backup SMTP servers
                         $mail->SMTPAuth = true;                                    // Enable SMTP authentication
                         $mail->Username = 'nasiryt.827@gmail.com';                  // SMTP username
-                        $mail->Password = 'mtvp ruzp aqfu tfxt';                   // SMTP password
+                        $mail->Password = "YOUR_OWN_API_KEY";                   // SMTP password
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;        // Enable TLS encryption
                         $mail->Port = 587;                                         // TCP port to connect to
 
